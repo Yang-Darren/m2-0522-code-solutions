@@ -37,7 +37,7 @@ const changeNote = (indexNum, newNote) => {
   fs.readFile('data.json', 'utf8', (err, jsonData) => {
     if (err) throw err;
     const dataObj = JSON.parse(jsonData);
-    if (indexNum < dataObj.nextId) {
+    if (dataObj.notes[indexNum]) {
       dataObj.notes[indexNum] = newNote;
       updateNotes(dataObj);
     } else {
