@@ -5,9 +5,9 @@ const idNum = parseInt(textString);
 const newNote = process.argv[4];
 
 const read = () => {
-  fs.readFile('data.json', 'utf8', (err, jsonString) => {
+  fs.readFile('data.json', 'utf8', (err, jsonData) => {
     if (err) throw err;
-    const data = JSON.parse(jsonString).notes;
+    const data = JSON.parse(jsonData).notes;
     for (const [key, value] of Object.entries(data)) {
       console.log(`${key}: ${value}`);
     }
@@ -15,9 +15,9 @@ const read = () => {
 };
 
 const create = textString => {
-  fs.readFile('data.json', 'utf8', (err, jsonString) => {
+  fs.readFile('data.json', 'utf8', (err, jsonData) => {
     if (err) throw err;
-    const dataObj = JSON.parse(jsonString);
+    const dataObj = JSON.parse(jsonData);
     dataObj.notes[dataObj.nextId] = textString;
     dataObj.nextId++;
     updateNotes(dataObj);
@@ -25,20 +25,24 @@ const create = textString => {
 };
 
 const deleteNote = indexNum => {
-  fs.readFile('data.json', 'utf8', (err, jsonString) => {
+  fs.readFile('data.json', 'utf8', (err, jsonData) => {
     if (err) throw err;
-    const dataObj = JSON.parse(jsonString);
+    const dataObj = JSON.parse(jsonData);
     delete dataObj.notes[indexNum];
     updateNotes(dataObj);
   });
 };
 
 const changeNote = (indexNum, newNote) => {
-  fs.readFile('data.json', 'utf8', (err, jsonString) => {
+  fs.readFile('data.json', 'utf8', (err, jsonData) => {
     if (err) throw err;
-    const dataObj = JSON.parse(jsonString);
-    dataObj.notes[indexNum] = newNote;
-    updateNotes(dataObj);
+    const dataObj = JSON.parse(jsonData);
+    if (indexNum < dataObj.nextId) {
+      dataObj.notes[indexNum] = newNote;
+      updateNotes(dataObj);
+    } else {
+      throw err;
+    }
   });
 };
 
@@ -52,8 +56,8 @@ if (command === 'read') {
   changeNote(idNum, newNote);
 }
 
-const updateNotes = jsonString => {
-  fs.writeFile('data.json', JSON.stringify(jsonString, null, 2), 'utf8', err => {
+const updateNotes = jsonData => {
+  fs.writeFile('data.json', JSON.stringify(jsonData, null, 2), 'utf8', err => {
     if (err) throw err;
   });
 };
