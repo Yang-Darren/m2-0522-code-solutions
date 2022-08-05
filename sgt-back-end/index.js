@@ -27,10 +27,15 @@ app.post('/api/grades', (req, res, next) => {
   const sql = `insert into "grades" ("name", "course", "score")
                values ($1, $2, $3)
                returning *`;
-  const score = Number(body.score);
   const values = [body.name, body.course, body.score];
-  if (!body.name || !body.course || !body.score) {
-    return res.status(400).json({ Error: 'Missing name, course, or score' });
+  if (body.score === undefined) {
+    return res.status(400).json({ Error: 'Missing score' });
+  }
+  const score = Number(body.score);
+  if (!body.name || body.name === undefined) {
+    return res.status(400).json({ Error: 'Missing name' });
+  } else if (!body.course || body.course === undefined) {
+    return res.status(400).json({ Error: 'Missing course' });
   } else if (!Number.isInteger(score) || score > 100 || score < 0) {
     return res.status(400).json({ Error: 'Score must be a positive integer from 0-100' });
   }
@@ -46,7 +51,6 @@ app.post('/api/grades', (req, res, next) => {
 app.put('/api/grades/:gradeId', (req, res, next) => {
   const gradeId = Number(req.params.gradeId);
   const body = req.body;
-  const score = Number(body.score);
   const sql = `
     update "grades"
        set "name" = $2,
@@ -54,10 +58,16 @@ app.put('/api/grades/:gradeId', (req, res, next) => {
            "score" =$4
      where "gradeId" = $1
      returning *`;
+  if (body.score === undefined) {
+    return res.status(400).json({ Error: 'Missing score' });
+  }
+  const score = Number(body.score);
   if (!Number.isInteger(gradeId) || gradeId <= 0) {
     return res.status(400).json({ error: '"gradeId" must be a positive integer' });
-  } else if (!body.name || !body.course || !body.score) {
-    return res.status(400).json({ Error: 'Missing name, course, or score' });
+  } else if (!body.name || body.name === undefined) {
+    return res.status(400).json({ Error: 'Missing name' });
+  } else if (!body.course || body.course === undefined) {
+    return res.status(400).json({ Error: 'Missing course' });
   } else if (!Number.isInteger(score) || score > 100 || score < 0) {
     return res.status(400).json({ Error: 'Score must be a positive integer from 0-100' });
   }
